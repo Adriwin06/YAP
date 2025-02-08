@@ -37,16 +37,16 @@ Note that the entire input folder, including all subdirectories, is searched ind
 If `.imports.yaml` exists, it will be used during bundle creation. To use split imports instead (provided they've been created), the combined imports file must be removed or renamed.
 
 ### Extracting multiple bundles
-```bash
+```
 YAP c -d <input folder> <output bundle> <.ext>
 ```
 This will extract all bundles from the input folder to the output folder that have the specified extension. The output folder will be created if it doesn't exist.
 
 ### Creating multiple bundles
-```bash
+```
 YAP c -d <input folder> <output bundle> <.ext> [optionnal]
 ```
-This will create a bundle for each folder in the input folder. If an extension is specified, it will only create the bundles from the folders that end with the specified extension, otherwise all of them will be proecessed. The output folder will be created if it doesn't exist.
+This will create a bundle for each folder in the input folder. If an extension is specified, it will only create the bundles from the folders that end with the specified extension, otherwise all of them will be processed. The output folder will be created if it doesn't exist.
 
 ### Editing bundles
 #### Editing imports
