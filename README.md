@@ -10,7 +10,7 @@ YAP was made for two reasons:
 Only Bundle 2 version 2, the version used in Burnout Paradise, is supported. Although support for the original bundle format would be nice to have, none of the aforementioned builds use it, so it's outside the scope of this initial release.
 
 ## Usage
-### Extracting bundles
+### Extracting single bundles
 ```
 YAP e <input bundle> <output folder>
 ```
@@ -25,7 +25,7 @@ If `--combine-imports` was used, the imports for every resource will be in `.imp
 
 It may be prudent to apply [this registry edit](https://superuser.com/a/1765437) so files are sorted as expected.
 
-### Creating bundles
+### Creating single bundles
 ```
 YAP c <input folder> <output bundle>
 ```
@@ -35,6 +35,18 @@ This uses the metadata file `.meta.yaml` to construct a bundle. Resources not de
 Note that the entire input folder, including all subdirectories, is searched indiscriminately for resources. If two resource files have matching names, regardless of their location, they will be detected as duplicates and the creation process will be aborted.
 
 If `.imports.yaml` exists, it will be used during bundle creation. To use split imports instead (provided they've been created), the combined imports file must be removed or renamed.
+
+### Extracting multiple bundles
+```bash
+YAP c -d <input folder> <output bundle> <.ext>
+```
+This will extract all bundles from the input folder to the output folder that have the specified extension. The output folder will be created if it doesn't exist.
+
+### Creating multiple bundles
+```bash
+YAP c -d <input folder> <output bundle> <.ext> [optionnal]
+```
+This will create a bundle for each folder in the input folder. If an extension is specified, it will only create the bundles from the folders that end with the specified extension, otherwise all of them will be proecessed. The output folder will be created if it doesn't exist.
 
 ### Editing bundles
 #### Editing imports
