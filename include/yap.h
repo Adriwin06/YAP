@@ -20,6 +20,10 @@ public:
 	int result = 0;
 
 private:
+	bool dirMode = false;
+	int extract_dir();
+	int create_dir();
+	QString fileExtension;
 	struct ImportEntry
 	{
 		uint64_t id = 0;
