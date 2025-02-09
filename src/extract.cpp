@@ -79,7 +79,7 @@ int YAP::extract()
 		outputDebugData(inStream, bundle);
 	inFile.close();
 	outputMetadata(bundle);
-	std::cout << "Extraction complete";
+	std::cout << "Extraction complete\n";
 
 	return 0;
 }

@@ -42,14 +42,12 @@ void YAP::setupArgs()
 		.choices("e", "c")
 		.help("e=Extract the contents of a bundle to a folder\nc=Create a new bundle from a folder");
 	args->add_argument("-d", "--directory")
-		.nargs(2, 3)  // Allow 2 or 3 arguments
-		.help("Extract: -d input_dir output_dir extension\nCreate: -d input_dir output_dir [extension]");
+		.help("Process entire directory. Optional extension filter (e.g. DAT)")
+		.nargs(0, 1);
 	args->add_argument("input")
-		.help("If extracting, the bundle to extract\nIf creating, the folder to generate a bundle from")
-		.nargs(0, 1);  // Make optional
+		.help("If extracting, the bundle to extract\nIf creating, the folder to generate a bundle from");
 	args->add_argument("output")
-		.help("If extracting, the folder to output to\nIf creating, the file to output")
-		.nargs(0, 1);  // Make optional
+		.help("If extracting, the folder to output to\nIf creating, the file to output");
 	args->add_argument("-ns", "--nosort")
 		.store_into(doNotSortByType)
 		.flag()
@@ -73,30 +71,17 @@ bool YAP::readArgs(int argc, char* argv[])
 		args->parse_args(argc, argv);
 		mode = args->get("mode").c_str();
 
+		inPath = QString::fromStdString(args->get("input"));
+		outPath = QString::fromStdString(args->get("output"));
+
 		if(args->present("-d")) {
-			std::vector<std::string> dirs = args->get<std::vector<std::string>>("-d");
-			inPath = QString::fromStdString(dirs[0]);
-			outPath = QString::fromStdString(dirs[1]);
-			
-			// Only require extension for extract mode
-			if (mode == "e" && dirs.size() < 3) {
-				qCritical().noquote() << "Extension is required for extract mode";
-				return false;
-			}
-			
-			// Set extension if provided, otherwise leave it empty for create mode
-			if (dirs.size() == 3) {
-				fileExtension = QString::fromStdString(dirs[2]);
-			}
 			dirMode = true;
-		}
-		else if(args->present("input") && args->present("output")) {
-			inPath = args->get("input").c_str();
-			outPath = args->get("output").c_str();
-		}
-		else {
-			qCritical().noquote() << "Either -d with two paths or input and output arguments are required";
-			return false;
+			if(args->present("--directory")) {
+				fileExtension = QString::fromStdString(args->get("--directory"));
+				if (!fileExtension.startsWith(".")) {
+					fileExtension.prepend(".");
+				}
+			}
 		}
 
 		inPath = QDir::cleanPath(inPath);
