@@ -38,12 +38,12 @@ YAP::~YAP()
 void YAP::setupArgs()
 {
 	args = new argparse::ArgumentParser("YAP", version, argparse::default_arguments::help);
-	args->add_argument("mode")
-		.choices("e", "c")
-		.help("e=Extract the contents of a bundle to a folder\nc=Create a new bundle from a folder");
 	args->add_argument("-d", "--directory")
 		.help("Process entire directory. Optional extension filter (e.g. DAT)")
 		.nargs(0, 1);
+	args->add_argument("mode")
+		.choices("e", "c")
+		.help("e=Extract the contents of a bundle to a folder\nc=Create a new bundle from a folder");
 	args->add_argument("input")
 		.help("If extracting, the bundle to extract\nIf creating, the folder to generate a bundle from");
 	args->add_argument("output")
@@ -76,7 +76,7 @@ bool YAP::readArgs(int argc, char* argv[])
 
 		if(args->present("-d")) {
 			dirMode = true;
-			if(args->present("--directory")) {
+			if(args->is_used("--directory")) {
 				fileExtension = QString::fromStdString(args->get("--directory"));
 				if (!fileExtension.startsWith(".")) {
 					fileExtension.prepend(".");

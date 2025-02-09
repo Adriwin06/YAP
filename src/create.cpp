@@ -404,5 +404,5 @@ void YAP::outputBundle(GameDataStream& stream, Bundle& bundle, QByteArray data[]
 
 	// Save
 	stream.close();
-	std::cout << "Bundle created.";
+	std::cout << "Bundle created.\n";
 }
