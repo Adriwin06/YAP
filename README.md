@@ -10,7 +10,7 @@ YAP was made for two reasons:
 Only Bundle 2 version 2, the version used in Burnout Paradise, is supported. Although support for the original bundle format would be nice to have, none of the aforementioned builds use it, so it's outside the scope of this initial release.
 
 ## Usage
-### Extracting single bundles
+### Extracting a bundle
 ```
 YAP e <input bundle> <output folder>
 ```
@@ -25,7 +25,7 @@ If `--combine-imports` was used, the imports for every resource will be in `.imp
 
 It may be prudent to apply [this registry edit](https://superuser.com/a/1765437) so files are sorted as expected.
 
-### Creating single bundles
+### Creating a bundle
 ```
 YAP c <input folder> <output bundle>
 ```
@@ -44,7 +44,7 @@ This will extract all bundles from the input folder to the output folder that ha
 
 ### Creating multiple bundles
 ```
-YAP c -d <input folder> <output bundle> <.ext> [optionnal]
+YAP c -d <input folder> <output bundle> [.ext]
 ```
 This will create a bundle for each folder in the input folder. If an extension is specified, it will only create the bundles from the folders that end with the specified extension, otherwise all of them will be processed. The output folder will be created if it doesn't exist.
 

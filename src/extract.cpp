@@ -5,58 +5,58 @@
 #include <QFile>
 #include <iostream>
 
-int YAP::extract_dir()
+int YAP::extractDir()
 {
-    QDir dir(inPath);
-    QDir outDir(outPath);
+	QDir dir(inPath);
+	QDir outDir(outPath);
 
-    // Create filter with specified extension
-    QStringList filters;
-    QString ext = fileExtension;
-    if (!ext.startsWith(".")) {
-        ext.prepend("*.");
-    } else {
-        ext.prepend("*");
-    }
-    filters << ext;
-    
-    QStringList bundles = dir.entryList(filters, QDir::Files);
-    if (bundles.isEmpty()) {
-        qWarning() << "No" << fileExtension << "files found in" << inPath;
-        return 1;
-    }
+	// Create filter with specified extension
+	QStringList filters;
+	QString ext = fileExtension;
+	if (!ext.startsWith(".")) {
+		ext.prepend("*.");
+	} else {
+		ext.prepend("*");
+	}
+	filters << ext;
+	
+	QStringList bundles = dir.entryList(filters, QDir::Files);
+	if (bundles.isEmpty()) {
+		qWarning() << "No" << fileExtension << "files found in" << inPath;
+		return 1;
+	}
 
-    for (const QString& bundle : bundles) {
-        QString bundlePath = dir.filePath(bundle);
-        QString extractPath = outDir.filePath(bundle);
-        // Instead of removing extension, keep it in folder name
-        extractPath.chop(bundle.length());
-        extractPath += QFileInfo(bundle).completeBaseName() + "_" + fileExtension;
-        
-        QDir().mkpath(extractPath);
-        
-        qInfo() << "Extracting" << bundle << "...";
-        
-        // Store current paths
-        QString savedInPath = inPath;
-        QString savedOutPath = outPath;
-        
-        // Set paths for this bundle
-        inPath = bundlePath;
-        outPath = extractPath + "/";
-        
-        // Extract
-        int result = extract();
-        if (result != 0) {
-            qWarning() << "Failed to extract" << bundle;
-        }
-        
-        // Restore paths
-        inPath = savedInPath;
-        outPath = savedOutPath;
-    }
+	for (const QString& bundle : bundles) {
+		QString bundlePath = dir.filePath(bundle);
+		QString extractPath = outDir.filePath(bundle);
+		// Instead of removing extension, keep it in folder name
+		extractPath.chop(bundle.length());
+		extractPath += QFileInfo(bundle).completeBaseName() + "_" + fileExtension;
+		
+		QDir().mkpath(extractPath);
+		
+		qInfo() << "Extracting" << bundle << "...";
+		
+		// Store current paths
+		QString savedInPath = inPath;
+		QString savedOutPath = outPath;
+		
+		// Set paths for this bundle
+		inPath = bundlePath;
+		outPath = extractPath + "/";
+		
+		// Extract
+		int result = extract();
+		if (result != 0) {
+			qWarning() << "Failed to extract" << bundle;
+		}
+		
+		// Restore paths
+		inPath = savedInPath;
+		outPath = savedOutPath;
+	}
 
-    return 0;
+	return 0;
 }
 
 int YAP::extract()

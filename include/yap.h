@@ -21,8 +21,8 @@ public:
 
 private:
 	bool dirMode = false;
-	int extract_dir();
-	int create_dir();
+	int extractDir();
+	int createDir();
 	QString fileExtension;
 	struct ImportEntry
 	{

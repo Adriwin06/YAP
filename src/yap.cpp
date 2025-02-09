@@ -14,13 +14,13 @@ YAP::YAP(int argc, char* argv[])
 
 	if (mode == "e") {
 		if (dirMode)
-			result = extract_dir();
+			result = extractDir();
 		else
 			result = extract();
 	}
 	else if (mode == "c") {
 		if (dirMode)
-			result = create_dir();
+			result = createDir();
 		else
 			result = create();
 	}
