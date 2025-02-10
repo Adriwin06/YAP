@@ -12,26 +12,28 @@ int YAP::extractDir()
 
 	// Create filter with specified extension
 	QStringList filters;
-	QString ext = fileExtension;
-	if (!ext.startsWith(".")) {
-		ext.prepend("*.");
-	} else {
-		ext.prepend("*");
-	}
-	filters << ext;
+	for (const QString& ext : fileExtensions)
+		filters << "*." + ext;
 	
-	QStringList bundles = dir.entryList(filters, QDir::Files);
-	if (bundles.isEmpty()) {
-		qWarning() << "No" << fileExtension << "files found in" << inPath;
+	QStringList bundles;
+	if (filters.empty())
+		bundles = dir.entryList(QDir::Files);
+	else
+		bundles = dir.entryList(filters, QDir::Files);
+	if (bundles.isEmpty())
+	{
+		qWarning() << "No files found in" << inPath;
 		return 1;
 	}
 
-	for (const QString& bundle : bundles) {
+	for (const QString& bundle : bundles)
+	{
 		QString bundlePath = dir.filePath(bundle);
 		QString extractPath = outDir.filePath(bundle);
 		// Instead of removing extension, keep it in folder name
 		extractPath.chop(bundle.length());
-		extractPath += QFileInfo(bundle).completeBaseName() + "_" + fileExtension;
+		QFileInfo bundleInfo(bundle);
+		extractPath += bundleInfo.completeBaseName() + "_" + bundleInfo.suffix();
 		
 		QDir().mkpath(extractPath);
 		
@@ -47,9 +49,8 @@ int YAP::extractDir()
 		
 		// Extract
 		int result = extract();
-		if (result != 0) {
+		if (result != 0)
 			qWarning() << "Failed to extract" << bundle;
-		}
 		
 		// Restore paths
 		inPath = savedInPath;
@@ -79,7 +80,7 @@ int YAP::extract()
 		outputDebugData(inStream, bundle);
 	inFile.close();
 	outputMetadata(bundle);
-	std::cout << "Extraction complete";
+	std::cout << "Extraction complete\n";
 
 	return 0;
 }

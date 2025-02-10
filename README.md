@@ -38,13 +38,13 @@ If `.imports.yaml` exists, it will be used during bundle creation. To use split 
 
 ### Extracting multiple bundles
 ```
-YAP c -d <input folder> <output bundle> <.ext>
+YAP -d <.ext> <mode> <input folder> <output bundle>
 ```
 This will extract all bundles from the input folder to the output folder that have the specified extension. The output folder will be created if it doesn't exist.
 
 ### Creating multiple bundles
 ```
-YAP c -d <input folder> <output bundle> [.ext]
+YAP -d [.ext] <mode> <input folder> <output bundle>
 ```
 This will create a bundle for each folder in the input folder. If an extension is specified, it will only create the bundles from the folders that end with the specified extension, otherwise all of them will be processed. The output folder will be created if it doesn't exist.
 

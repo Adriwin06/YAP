@@ -12,13 +12,15 @@ YAP::YAP(int argc, char* argv[])
 		return;
 	}
 
-	if (mode == "e") {
+	if (mode == "e")
+	{
 		if (dirMode)
 			result = extractDir();
 		else
 			result = extract();
 	}
-	else if (mode == "c") {
+	else if (mode == "c")
+	{
 		if (dirMode)
 			result = createDir();
 		else
@@ -41,15 +43,17 @@ void YAP::setupArgs()
 	args->add_argument("mode")
 		.choices("e", "c")
 		.help("e=Extract the contents of a bundle to a folder\nc=Create a new bundle from a folder");
+	args->add_argument("-e", "--extension")
+		.nargs(argparse::nargs_pattern::at_least_one)
+		.help("Specify the file extension to limit directory extraction/creation to.\n"
+			"If used, this cannot be the last optional argument.");
 	args->add_argument("-d", "--directory")
-		.nargs(2, 3)  // Allow 2 or 3 arguments
-		.help("Extract: -d input_dir output_dir extension\nCreate: -d input_dir output_dir [extension]");
+		.store_into(dirMode)
+		.help("Extract all the files in a directory.");
 	args->add_argument("input")
-		.help("If extracting, the bundle to extract\nIf creating, the folder to generate a bundle from")
-		.nargs(0, 1);  // Make optional
+		.help("If extracting, the bundle to extract\nIf creating, the folder to generate a bundle from");
 	args->add_argument("output")
-		.help("If extracting, the folder to output to\nIf creating, the file to output")
-		.nargs(0, 1);  // Make optional
+		.help("If extracting, the folder to output to\nIf creating, the file to output");
 	args->add_argument("-ns", "--nosort")
 		.store_into(doNotSortByType)
 		.flag()
@@ -71,76 +75,66 @@ bool YAP::readArgs(int argc, char* argv[])
 	try
 	{
 		args->parse_args(argc, argv);
-		mode = args->get("mode").c_str();
-
-		if(args->present("-d")) {
-			std::vector<std::string> dirs = args->get<std::vector<std::string>>("-d");
-			inPath = QString::fromStdString(dirs[0]);
-			outPath = QString::fromStdString(dirs[1]);
-			
-			// Only require extension for extract mode
-			if (mode == "e" && dirs.size() < 3) {
-				qCritical().noquote() << "Extension is required for extract mode";
-				return false;
-			}
-			
-			// Set extension if provided, otherwise leave it empty for create mode
-			if (dirs.size() == 3) {
-				fileExtension = QString::fromStdString(dirs[2]);
-			}
-			dirMode = true;
-		}
-		else if(args->present("input") && args->present("output")) {
-			inPath = args->get("input").c_str();
-			outPath = args->get("output").c_str();
-		}
-		else {
-			qCritical().noquote() << "Either -d with two paths or input and output arguments are required";
-			return false;
-		}
-
-		inPath = QDir::cleanPath(inPath);
-		outPath = QDir::cleanPath(outPath);
-
-		if (!dirMode) {
-			if (mode == "e" && !outPath.endsWith('/'))
-				outPath += '/';
-			else if (mode == "c" && !inPath.endsWith('/'))
-				inPath += '/';
-		}
-
-		if (args->is_used("--primary-alignment"))
-		{
-			if (!stringToUInt<uint16_t>(args->get("--primary-alignment").c_str(), defaultPrimaryAlignment, false, 0x10))
-				return false;
-		}
-		if (args->is_used("--secondary-alignment"))
-		{
-			if (!stringToUInt<uint16_t>(args->get("--secondary-alignment").c_str(), defaultSecondaryAlignment, false, 0x80))
-				return false;
-		}
-
-		return true;
 	}
 	catch (const std::exception& e)
 	{
-		qCritical().noquote().nospace() << e.what() << "\n\n" << args->help().str();
-		return false;
+		if (argc == 1)
+		{
+			qInfo().noquote().nospace() << args->help().str();
+			return false;
+		}
+		else
+		{
+			qCritical().noquote().nospace() << e.what() << "\n\n" << args->help().str();
+			return false;
+		}
 	}
+
+	mode = args->get("mode").c_str();
+	inPath = args->get("input").c_str();
+	outPath = args->get("output").c_str();
+	inPath = QDir::cleanPath(inPath);
+	outPath = QDir::cleanPath(outPath);
+
+	if (auto arg = args->present<std::vector<std::string>>("-e"))
+		if (arg.has_value())
+			for (const std::string& ext : arg.value())
+				fileExtensions.append(QString::fromStdString(ext.front() == '.' ? ext.substr(1) : ext));
+
+	if (mode == "e" && !outPath.endsWith('/'))
+		outPath += '/';
+	else if (mode == "c" && !inPath.endsWith('/'))
+		inPath += '/';
+
+	if (args->is_used("--primary-alignment"))
+	{
+		if (!stringToUInt<uint16_t>(args->get("--primary-alignment").c_str(), defaultPrimaryAlignment, false, 0x10))
+			return false;
+	}
+	if (args->is_used("--secondary-alignment"))
+	{
+		if (!stringToUInt<uint16_t>(args->get("--secondary-alignment").c_str(), defaultSecondaryAlignment, false, 0x80))
+			return false;
+	}
+
+	return true;
 }
 
 bool YAP::validateArgs()
 {
-	if (dirMode) {
+	if (dirMode)
+	{
 		QDir inDir(inPath);
 		QDir outDir(outPath);
 
-		if (!inDir.exists()) {
+		if (!inDir.exists())
+		{
 			qCritical() << "Input directory does not exist:" << inPath;
 			return false;
 		}
 
-		if (!outDir.exists() && !QDir().mkpath(outPath)) {
+		if (!outDir.exists() && !QDir().mkpath(outPath))
+		{
 			qCritical() << "Cannot create output directory:" << outPath;
 			return false;
 		}
