@@ -12,13 +12,15 @@ YAP::YAP(int argc, char* argv[])
 		return;
 	}
 
-	if (mode == "e") {
+	if (mode == "e")
+	{
 		if (dirMode)
 			result = extractDir();
 		else
 			result = extract();
 	}
-	else if (mode == "c") {
+	else if (mode == "c")
+	{
 		if (dirMode)
 			result = createDir();
 		else
@@ -38,12 +40,16 @@ YAP::~YAP()
 void YAP::setupArgs()
 {
 	args = new argparse::ArgumentParser("YAP", version, argparse::default_arguments::help);
-	args->add_argument("-d", "--directory")
-		.help("Process entire directory. Optional extension filter (e.g. DAT)")
-		.nargs(0, 1);
 	args->add_argument("mode")
 		.choices("e", "c")
 		.help("e=Extract the contents of a bundle to a folder\nc=Create a new bundle from a folder");
+	args->add_argument("-e", "--extension")
+		.nargs(argparse::nargs_pattern::at_least_one)
+		.help("Specify the file extension to limit directory extraction/creation to.\n"
+			"If used, this cannot be the last optional argument.");
+	args->add_argument("-d", "--directory")
+		.store_into(dirMode)
+		.help("Extract all the files in a directory.");
 	args->add_argument("input")
 		.help("If extracting, the bundle to extract\nIf creating, the folder to generate a bundle from");
 	args->add_argument("output")
@@ -69,63 +75,66 @@ bool YAP::readArgs(int argc, char* argv[])
 	try
 	{
 		args->parse_args(argc, argv);
-		mode = args->get("mode").c_str();
-
-		inPath = QString::fromStdString(args->get("input"));
-		outPath = QString::fromStdString(args->get("output"));
-
-		if(args->present("-d")) {
-			dirMode = true;
-			if(args->is_used("--directory")) {
-				fileExtension = QString::fromStdString(args->get("--directory"));
-				if (!fileExtension.startsWith(".")) {
-					fileExtension.prepend(".");
-				}
-			}
-		}
-
-		inPath = QDir::cleanPath(inPath);
-		outPath = QDir::cleanPath(outPath);
-
-		if (!dirMode) {
-			if (mode == "e" && !outPath.endsWith('/'))
-				outPath += '/';
-			else if (mode == "c" && !inPath.endsWith('/'))
-				inPath += '/';
-		}
-
-		if (args->is_used("--primary-alignment"))
-		{
-			if (!stringToUInt<uint16_t>(args->get("--primary-alignment").c_str(), defaultPrimaryAlignment, false, 0x10))
-				return false;
-		}
-		if (args->is_used("--secondary-alignment"))
-		{
-			if (!stringToUInt<uint16_t>(args->get("--secondary-alignment").c_str(), defaultSecondaryAlignment, false, 0x80))
-				return false;
-		}
-
-		return true;
 	}
 	catch (const std::exception& e)
 	{
-		qCritical().noquote().nospace() << e.what() << "\n\n" << args->help().str();
-		return false;
+		if (argc == 1)
+		{
+			qInfo().noquote().nospace() << args->help().str();
+			return false;
+		}
+		else
+		{
+			qCritical().noquote().nospace() << e.what() << "\n\n" << args->help().str();
+			return false;
+		}
 	}
+
+	mode = args->get("mode").c_str();
+	inPath = args->get("input").c_str();
+	outPath = args->get("output").c_str();
+	inPath = QDir::cleanPath(inPath);
+	outPath = QDir::cleanPath(outPath);
+
+	if (auto arg = args->present<std::vector<std::string>>("-e"))
+		if (arg.has_value())
+			for (const std::string& ext : arg.value())
+				fileExtensions.append(QString::fromStdString(ext.front() == '.' ? ext.substr(1) : ext));
+
+	if (mode == "e" && !outPath.endsWith('/'))
+		outPath += '/';
+	else if (mode == "c" && !inPath.endsWith('/'))
+		inPath += '/';
+
+	if (args->is_used("--primary-alignment"))
+	{
+		if (!stringToUInt<uint16_t>(args->get("--primary-alignment").c_str(), defaultPrimaryAlignment, false, 0x10))
+			return false;
+	}
+	if (args->is_used("--secondary-alignment"))
+	{
+		if (!stringToUInt<uint16_t>(args->get("--secondary-alignment").c_str(), defaultSecondaryAlignment, false, 0x80))
+			return false;
+	}
+
+	return true;
 }
 
 bool YAP::validateArgs()
 {
-	if (dirMode) {
+	if (dirMode)
+	{
 		QDir inDir(inPath);
 		QDir outDir(outPath);
 
-		if (!inDir.exists()) {
+		if (!inDir.exists())
+		{
 			qCritical() << "Input directory does not exist:" << inPath;
 			return false;
 		}
 
-		if (!outDir.exists() && !QDir().mkpath(outPath)) {
+		if (!outDir.exists() && !QDir().mkpath(outPath))
+		{
 			qCritical() << "Cannot create output directory:" << outPath;
 			return false;
 		}
