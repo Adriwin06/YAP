@@ -40,7 +40,7 @@ If `.imports.yaml` exists, it will be used during bundle creation. To use split 
 ```
 YAP [-e .ext] -d <mode> <input folder> <output bundle>
 ```
-This will extract all bundles from the input folder to the output folder that have the specified extension. The output folder will be created if it doesn't exist.
+This will extract all bundles from the input folder to the output folder that have the specified extension, if any. If no extension is specified, it will process all bundles in the input folder. The output folder will be created if it doesn't exist.
 
 ### Creating multiple bundles
 ```
@@ -72,7 +72,7 @@ This will create a bundle for each folder in the input folder. If an extension i
 * Create a bundle for each folder in the Extracted folder that ends with .BIN or .DAT and place them in the VEHICLES folder.
 
 <details>
-<summary>⚠️ Important Information about folder structure ⚠️</summary>
+<summary>⚠️ Important information about folder structure ⚠️</summary>
  The subfolders need to be named with the name of the original bundle and the structure needs to be like this:
 
   ```yaml
@@ -89,7 +89,7 @@ This will create a bundle for each folder in the input folder. If an extension i
 #### Important notes about the -e argument
 1. You can specify the extension with or without the dot (both `BIN` and `.BIN` work for example)
 2. You can specify multiple extensions like: `-e BIN DAT` or `-e .BIN .DAT` or `-e BIN .DAT` or `-e .BIN DAT`
-3. If used, this cannot be the last optional argument (that's why it goes before the mode `-d` which is optionnal before the requiered `c` or `e`)
+3. If used, this cannot be the last optional argument (that's why it goes before the mode `-d` which is optional before the requiered `c` or `e`)
 4. The extension matching is case-insensitive
 
 ### Editing bundles
